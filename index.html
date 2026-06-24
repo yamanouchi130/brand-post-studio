@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Brand Post Studio">
+<title>Brand Post Studio β</title>
+<link rel="manifest" href="data:application/json,{%22name%22:%22Brand Post Studio%22,%22short_name%22:%22BPS%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%23111111%22}">
+<style>
+:root {
+  --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0f0ec;
+  --text: #111111; --text2: #666660; --text3: #999993;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+  --accent-bg: #111111; --accent-text: #ffffff;
+  --info-bg: #e8f0fe; --info-text: #1a56c4;
+  --success-bg: #e6f4ea; --success-text: #1e6e3a;
+  --warn-bg: #fef3e2; --warn-text: #7a4f00;
+  --danger-bg: #fce8e8; --danger-text: #a01010;
+  --radius: 10px; --radius-sm: 6px; --radius-lg: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1a; --bg2: #222222; --bg3: #2a2a2a;
+    --text: #f0f0ec; --text2: #aaaaaa; --text3: #666660;
+    --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+    --accent-bg: #f0f0ec; --accent-text: #111111;
+    --info-bg: #1a2a4a; --info-text: #7aacf0;
+    --success-bg: #1a3a22; --success-text: #6ac48a;
+    --warn-bg: #3a2800; --warn-text: #f0b84a;
+    --danger-bg: #3a1010; --danger-text: #f08080;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.lock-screen { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.lock-box { width: 100%; max-width: 300px; text-align: center; }
+.lock-logo { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 24px; }
+.lock-logo span { color: var(--text3); font-weight: 400; font-size: 13px; margin-left: 5px; }
+.lock-msg { font-size: 14px; color: var(--text2); margin-bottom: 14px; }
+.lock-input { width: 100%; padding: 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 22px; text-align: center; letter-spacing: 8px; outline: none; margin-bottom: 10px; font-family: inherit; }
+.lock-input:focus { border-color: var(--text2); }
+.lock-error { font-size: 13px; color: var(--danger-text); min-height: 18px; margin-bottom: 10px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+.shell { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; background: var(--bg); }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 12px; border-bottom: 0.5px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; }
+.topbar-logo { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+.topbar-logo span { color: var(--text3); font-weight: 400; font-size: 12px; margin-left: 6px; }
+.icon-btn { width: 34px; height: 34px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 18px; transition: background 0.15s; }
+.icon-btn:hover { background: var(--bg2); }
+.content { flex: 1; overflow-y: auto; }
+.nav { display: flex; border-bottom: 0.5px solid var(--border); background: var(--bg); }
+.nav-tab { flex: 1; padding: 10px 4px; text-align: center; font-size: 12px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
+.nav-tab svg { display: block; margin: 0 auto 3px; }
+.page { display: none; padding: 16px; }
+.page.active { display: block; }
+.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 12px; }
+.card-title { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 14px; cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap; }
+.btn:hover { background: var(--bg2); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent-bg); color: var(--accent-text); border-color: transparent; }
+.btn-primary:hover { opacity: 0.88; }
+.btn-block { width: 100%; }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn-xs { padding: 4px 10px; font-size: 12px; border-radius: var(--radius-sm); }
+.btn-danger { color: var(--danger-text); border-color: var(--danger-bg); }
+.btn-danger:hover { background: var(--danger-bg); }
+input[type=text], input[type=password], textarea, select { width: 100%; padding: 9px 12px; border-radius: var(--radius-sm); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; transition: border-color 0.15s; outline: none; }
+input:focus, textarea:focus, select:focus { border-color: var(--text2); }
+textarea { resize: vertical; line-height: 1.6; }
+label { font-size: 13px; color: var(--text2); display: block; margin-bottom: 5px; }
+.form-group { margin-bottom: 14px; }
+.form-hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; background: var(--bg2); border: 0.5px solid var(--border); font-size: 13px; }
+.tag-chip button { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; line-height: 1; padding: 0; }
+.tag-chip button:hover { color: var(--danger-text); }
+.upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.upload-zone:hover { background: var(--bg2); }
+.upload-zone.dragover { background: var(--info-bg); border-color: var(--info-text); }
+.upload-zone p { font-size: 14px; color: var(--text2); margin-top: 8px; }
+.upload-zone small { font-size: 12px; color: var(--text3); }
+.photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; }
+.photo-thumb { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; border: 0.5px solid var(--border); }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb .order-badge { position: absolute; bottom: 3px; left: 3px; min-width: 18px; height: 18px; padding: 0 4px; background: rgba(0,0,0,0.65); border-radius: 9px; color: white; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+.photo-thumb .rm { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; background: rgba(0,0,0,0.65); border: none; border-radius: 50%; color: white; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.chat-wrap { min-height: 200px; margin-bottom: 12px; }
+.msg { display: flex; gap: 8px; margin-bottom: 10px; }
+.msg.user { flex-direction: row-reverse; }
+.msg-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--bg2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.msg-bubble { max-width: 82%; padding: 9px 13px; border-radius: var(--radius-lg); font-size: 14px; line-height: 1.6; }
+.msg.ai .msg-bubble { background: var(--bg2); border-radius: 4px var(--radius-lg) var(--radius-lg) var(--radius-lg); }
+.msg.user .msg-bubble { background: var(--accent-bg); color: var(--accent-text); border-radius: var(--radius-lg) 4px var(--radius-lg) var(--radius-lg); white-space: pre-wrap; }
+.qr-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.qr { padding: 6px 12px; border-radius: 20px; border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+.qr:hover { background: var(--bg2); }
+.chat-input-row { display: flex; flex-direction: column; gap: 8px; }
+.chat-input-row textarea { width: 100%; min-height: 64px; resize: none; }
+.chat-input-bottom { display: flex; align-items: center; justify-content: space-between; }
+.chat-hint { font-size: 11px; color: var(--text3); }
+.chat-input-row .btn { width: 96px; }
+.confirm-summary { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; }
+.confirm-summary .cs-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 10px; }
+.confirm-summary .cs-row { display: flex; gap: 8px; padding: 5px 0; font-size: 13px; align-items: flex-start; }
+.confirm-summary .cs-label { color: var(--text3); min-width: 76px; flex-shrink: 0; }
+.confirm-summary .cs-val { color: var(--text); flex: 1; white-space: pre-wrap; }
+.confirm-summary .cs-empty { color: var(--text3); }
+.confirm-summary .cs-field { margin-bottom: 10px; }
+.confirm-summary .cs-field:last-child { margin-bottom: 0; }
+.confirm-summary .cs-flabel { font-size: 12px; color: var(--text3); display: block; margin-bottom: 4px; }
+.confirm-summary .cs-input { width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-family: inherit; line-height: 1.6; resize: vertical; outline: none; }
+.confirm-summary .cs-input:focus { border-color: var(--text2); }
+.progress-dots { display: flex; gap: 5px; margin-bottom: 14px; }
+.pdot { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: background 0.3s; }
+.pdot.done { background: var(--text); }
+.pdot.active { background: var(--text2); }
+.ptabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.ptab { padding: 6px 13px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--bg); color: var(--text2); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+.ptab.active { background: var(--text); color: var(--accent-text); border-color: transparent; }
+.post-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; }
+.post-card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+.pbadge { font-size: 12px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+.post-body { font-size: 14px; line-height: 1.7; white-space: pre-wrap; margin-bottom: 10px; }
+.post-tags { font-size: 13px; color: var(--info-text); line-height: 1.8; margin-bottom: 10px; }
+.post-meta { font-size: 12px; color: var(--text3); padding: 8px 10px; background: var(--bg2); border-radius: var(--radius-sm); margin-bottom: 8px; line-height: 1.7; }
+.post-meta strong { color: var(--text2); }
+.brand-block { margin-top: 10px; padding: 12px 14px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--bg2); }
+.brand-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.brand-label { font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: 0.03em; }
+.brand-stars { font-size: 16px; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+.brand-stars.bs-good { color: #e8a91d; }
+.brand-stars.bs-mid { color: #c9962a; }
+.brand-stars.bs-low { color: #c0633a; }
+.brand-num { font-size: 12px; font-weight: 600; letter-spacing: 0; }
+.brand-reason { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 6px; }
+.brand-tips { font-size: 13px; line-height: 1.7; color: var(--text2); }
+.brand-tips strong { color: var(--text); }
+.sel-photos { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.sel-photo { position: relative; width: 54px; height: 54px; border-radius: var(--radius-sm); overflow: hidden; border: 0.5px solid var(--border); }
+.sel-photo img { width: 100%; height: 100%; object-fit: cover; }
+.sel-photo .n { position: absolute; bottom: 2px; left: 2px; min-width: 15px; height: 15px; padding: 0 3px; background: rgba(0,0,0,0.7); border-radius: 8px; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+.sel-photo.highlight { border: 2px solid var(--info-text); }
+.post-edit-area textarea { min-height: 140px; }
+.post-edit-area .edit-flabel { font-size: 11px; color: var(--text3); display: block; margin: 8px 0 4px; }
+.post-edit-area .edit-flabel:first-child { margin-top: 0; }
+.post-edit-area .edit-title, .post-edit-area .edit-tags { width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
+.post-edit-area .edit-title:focus, .post-edit-area .edit-tags:focus { border-color: var(--text2); }
+.grid-preview { display: grid; gap: 3px; margin-bottom: 8px; max-width: 180px; }
+.grid-preview .gp-cell { aspect-ratio: 1; border-radius: 3px; overflow: hidden; background: var(--bg2); }
+.grid-preview .gp-cell img { width: 100%; height: 100%; object-fit: cover; }
+.pb-x { background: #e8f0fe; color: #1a56c4; }
+.pb-insta { background: #fef3e2; color: #7a4f00; }
+.pb-note { background: #e6f4ea; color: #1e6e3a; }
+.pb-ameba { background: #e8f5f0; color: #0f6040; }
+.pb-hello { background: #fce8f4; color: #8a1060; }
+.profile-section { margin-bottom: 20px; }
+.profile-section-title { font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.accordion-item { border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+.accordion-hdr { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; font-weight: 500; padding: 12px 14px; background: var(--bg); }
+.accordion-hdr .chev { font-size: 18px; color: var(--text3); transition: transform 0.2s; }
+.accordion-item.open .accordion-hdr .chev { transform: rotate(90deg); }
+.accordion-content { display: none; padding: 4px 14px 14px; }
+.accordion-item.open .accordion-content { display: block; }
+.seg { display: flex; gap: 0; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); overflow: hidden; margin-top: 4px; }
+.seg button { flex: 1; padding: 7px 4px; background: var(--bg); border: none; border-right: 0.5px solid var(--border2); font-size: 12px; color: var(--text2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.seg button:last-child { border-right: none; }
+.seg button.active { background: var(--text); color: var(--accent-text); }
+.chip-select { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.chip-select button { padding: 6px 13px; border-radius: 20px; border: 0.5px solid var(--border2); background: var(--bg); font-size: 13px; color: var(--text2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.chip-select button.active { background: var(--text); color: var(--accent-text); border-color: transparent; }
+.spinner-wrap { text-align: center; padding: 40px 20px; }
+.spinner { width: 36px; height: 36px; border: 2.5px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-msg { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.spinner-sub { font-size: 13px; color: var(--text3); }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--accent-text); padding: 10px 20px; border-radius: var(--radius); font-size: 14px; z-index: 999; transition: transform 0.25s; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; }
+.api-banner { background: var(--warn-bg); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--warn-text); line-height: 1.6; }
+.history-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; cursor: pointer; }
+.history-thumb { width: 44px; height: 44px; border-radius: var(--radius-sm); overflow: hidden; border: 0.5px solid var(--border); flex-shrink: 0; background: var(--bg2); }
+.history-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.history-info { flex: 1; min-width: 0; }
+.history-scene { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-date { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.history-platforms { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.hpill { font-size: 11px; padding: 1px 7px; border-radius: 10px; }
+.fav-btn { background: none; border: none; font-size: 22px; line-height: 1; cursor: pointer; color: var(--text3); padding: 4px; align-self: center; flex-shrink: 0; transition: transform 0.1s; }
+.fav-btn.on { color: #e8a91d; }
+.fav-btn:active { transform: scale(1.25); }
+.switch-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+.switch-row:last-child { border-bottom: none; }
+.switch-label { font-size: 14px; }
+.toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--border2); border-radius: 13px; cursor: pointer; transition: background 0.2s; }
+.toggle-slider::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+.toggle input:checked + .toggle-slider { background: var(--text); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+</style>
+</head>
+<body>
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-box">
+    <div class="lock-logo">Brand Post Studio <span>β</span></div>
+    <div class="lock-msg">パスワードを入力してください</div>
+    <input type="password" id="lockInput" class="lock-input" inputmode="numeric" placeholder="••••••" autocomplete="off">
+    <div class="lock-error" id="lockError"></div>
+    <button class="btn btn-primary btn-block" onclick="tryUnlock()">開く</button>
+  </div>
+</div>
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-logo">Brand Post Studio <span>β</span></div>
+    <button class="icon-btn" onclick="showApiSetting()" title="設定">⚙</button>
+  </div>
+  <div class="nav">
+    <div class="nav-tab active" onclick="switchPage('home', this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>作成</div>
+    <div class="nav-tab" onclick="switchPage('history', this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>履歴</div>
+    <div class="nav-tab" onclick="switchPage('profile', this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>プロフィール</div>
+    <div class="nav-tab" onclick="switchPage('snsset', this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>SNS設定</div>
+    <div class="nav-tab" onclick="switchPage('settings', this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>設定</div>
+  </div>
+  <div class="content">
+
+    <div id="page-home" class="page active">
+      <div id="step-upload">
+        <div id="api-warning" class="api-banner" style="display:none">⚠ APIキーが未設定です。右上の ⚙ からAnthropicのAPIキーを登録してください。</div>
+        <div class="card">
+          <div class="card-title">📷 写真をアップロード</div>
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+            <div style="font-size:32px">🖼</div>
+            <p>タップ、またはドラッグ&ドロップ</p>
+            <small>最大10枚 · JPG / PNG / HEIC</small>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+          <div id="photoGrid" class="photo-grid"></div>
+          <p id="photoCount" style="font-size:13px;color:var(--text3);margin-top:8px;display:none"></p>
+        </div>
+        <div class="card">
+          <div class="card-title">📝 現地メモ（任意・あるほど精度UP）</div>
+          <textarea id="memoInput" rows="4" placeholder="例: いわき市の○○食堂。観光地から外れた路地裏。塩焼き鳥が絶品でビールは一番搾り。大将がやってる隠れた名店。常連が多くて落ち着く雰囲気だった。"></textarea>
+          <div class="form-hint">店名・場所・感想・誰と行ったかなど、覚えていることを自由に。AIがこれを読んで具体的で説得力のある投稿にします。看板やメニューの文字も写真から読み取ります。</div>
+        </div>
+        <div class="card">
+          <div class="card-title">📍 店舗情報（任意・空欄でもOK）</div>
+          <textarea id="storeInput" rows="4" placeholder="例:&#10;○○食堂&#10;福島県いわき市平○○1-2-3&#10;営業 11:00〜22:00（L.O.21:30）&#10;定休日 水曜&#10;TEL 0246-00-0000"></textarea>
+          <div class="form-hint">店名・住所・営業時間など、まとめて自由に記入。「店舗情報を載せる」がオンのSNSで投稿末尾に表示され、自動で「※最新情報はご確認を」の注記が付きます。空欄なら何も表示されません。</div>
+        </div>
+        <button class="btn btn-primary btn-block" id="startBtn" style="display:none" onclick="startFlow()">AIで分析して投稿を作成 →</button>
+      </div>
+
+      <div id="step-analyze" style="display:none">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-msg" id="analyzeMsg">写真を分析中...</div><div class="spinner-sub">シーン・雰囲気・被写体を認識しています</div></div>
+      </div>
+
+      <div id="step-chat" style="display:none">
+        <div class="card">
+          <div class="progress-dots" id="progressDots"></div>
+          <div class="chat-wrap" id="chatArea"></div>
+          <div class="qr-wrap" id="quickReplies"></div>
+          <div class="chat-input-row" id="chatInputRow">
+            <textarea id="chatInput" placeholder="自由に入力できます（Shift+Enterで改行）" rows="2"></textarea>
+            <div class="chat-input-bottom">
+              <span class="chat-hint">Enterで送信 / Shift+Enterで改行</span>
+              <button class="btn btn-primary btn-sm" onclick="sendUserMsg()">送信</button>
+            </div>
+          </div>
+          <div id="confirmBox" style="display:none">
+            <div class="confirm-summary" id="confirmSummary"></div>
+            <div style="margin-top:12px">
+              <button class="btn btn-primary btn-block" onclick="confirmGenerate()">この内容で生成する →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="step-results" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:14px;font-weight:500">投稿コンテンツ完成</div>
+          <button class="btn btn-sm" onclick="resetFlow()">← やり直す</button>
+        </div>
+        <div class="ptabs" id="platformTabs"></div>
+        <div id="postsArea"></div>
+        <button class="btn btn-block" id="saveBtn" onclick="saveToHistory()" style="margin-top:4px">履歴に保存</button>
+      </div>
+    </div>
+
+    <div id="page-history" class="page"><div id="historyList"></div></div>
+
+    <div id="page-profile" class="page">
+      <div class="profile-section">
+        <div class="profile-section-title">基本情報</div>
+        <div class="card">
+          <div class="form-group"><label>名前・ニックネーム</label><input type="text" id="pf-name" placeholder="例: たろう / Taro"></div>
+          <div class="form-group"><label>発信コンセプト（一言）</label><input type="text" id="pf-concept" placeholder="例: 旅とガジェットで日常を豊かに"></div>
+          <div class="form-group" style="margin-bottom:0"><label>自己紹介（AIが文章に反映します）</label><textarea id="pf-bio" rows="3" placeholder="例: 旅行とカメラが好きな30代。週末は各地の穴場カフェやガジェットを探しています。"></textarea></div>
+        </div>
+      </div>
+      <div class="profile-section">
+        <div class="profile-section-title">文体・癖</div>
+        <div class="card">
+          <div class="form-group"><label>よく使う語尾・口癖</label><input type="text" id="pf-style" placeholder="例: 〜でした◎ / 〜です！/ ほんと最高"><div class="form-hint">AIがこの文体を真似て文章を生成します</div></div>
+          <div class="form-group"><label>発信トーン</label><select id="pf-tone"><option value="casual">カジュアル・親しみやすい</option><option value="warm">温かみがあって丁寧</option><option value="cool">クール・シンプル</option><option value="info">情報量多め・詳しく</option><option value="humor">ユーモアあり・楽しく</option></select></div>
+          <div class="form-group" style="margin-bottom:0"><label>絵文字の使い方</label><select id="pf-emoji"><option value="moderate">適度に使う</option><option value="lots">たくさん使う ✨🎉</option><option value="few">あまり使わない</option><option value="none">使わない</option></select></div>
+        </div>
+      </div>
+      <div class="profile-section">
+        <div class="profile-section-title">キーワード設定</div>
+        <div class="card">
+          <div class="form-group"><label>必ず入れるキーワード・フレーズ</label><div style="display:flex;gap:6px"><input type="text" id="must-input" placeholder="入力してEnter"><button class="btn btn-sm" onclick="addTag('must')">追加</button></div><div class="tags-wrap" id="must-tags"></div></div>
+          <div class="form-group" style="margin-bottom:0"><label>使わないNGキーワード</label><div style="display:flex;gap:6px"><input type="text" id="ng-input" placeholder="入力してEnter"><button class="btn btn-sm" onclick="addTag('ng')">追加</button></div><div class="tags-wrap" id="ng-tags"></div></div>
+        </div>
+      </div>
+      <div class="profile-section">
+        <div class="profile-section-title">固定ハッシュタグ</div>
+        <div class="card"><div class="form-group" style="margin-bottom:0"><label>投稿に毎回追加するハッシュタグ</label><div style="display:flex;gap:6px"><input type="text" id="fixed-input" placeholder="#タグを入力してEnter"><button class="btn btn-sm" onclick="addTag('fixed')">追加</button></div><div class="tags-wrap" id="fixed-tags"></div></div></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="saveProfile()" style="margin-bottom:12px">プロフィールを保存</button>
+    </div>
+
+    <div id="page-snsset" class="page">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">各SNSの役割・文章量・写真枚数・レイアウトを設定できます。ここで決めた内容がAIの生成に反映されます。</p>
+      <div id="snsAccordion"></div>
+      <button class="btn btn-primary btn-block" onclick="saveSnsConfig()" style="margin:4px 0 12px">SNS設定を保存</button>
+    </div>
+
+    <div id="page-settings" class="page">
+      <div class="card"><div class="card-title">投稿するSNS</div><div id="sns-toggles"></div></div>
+      <div class="card"><div class="card-title">APIキー</div><div class="form-group"><label>Anthropic APIキー</label><input type="password" id="apiKeyInput" placeholder="sk-ant-..."><div class="form-hint">キーはこのデバイスのみに保存されます。</div></div><button class="btn btn-primary btn-sm" onclick="saveApiKey()">保存</button></div>
+      <div class="card"><div class="card-title">データ管理</div><button class="btn btn-block btn-danger btn-sm" onclick="clearHistory()" style="margin-bottom:8px">履歴をすべて削除</button><button class="btn btn-block btn-danger btn-sm" onclick="clearAll()">全データを初期化</button></div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);padding:16px 0">Brand Post Studio β v0.2</div>
+    </div>
+
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const PLATFORMS = [
+  { id:'x',     name:'X (Twitter)',  badge:'pb-x' },
+  { id:'insta', name:'Instagram',    badge:'pb-insta' },
+  { id:'note',  name:'note',         badge:'pb-note' },
+  { id:'ameba', name:'アメブロ',      badge:'pb-ameba' },
+  { id:'hello', name:'Hello Talk',   badge:'pb-hello' }
+];
+
+const LENGTH_OPTS = [
+  { v:'short', label:'短文', desc:'〜140字' },
+  { v:'medium', label:'中文', desc:'〜300字' },
+  { v:'long', label:'長文', desc:'800字〜' }
+];
+const PHOTO_OPTS = [1,3,4,6,9,10];
+const HASHTAG_OPTS = [
+  { v:'none', label:'なし' },
+  { v:'few', label:'少なめ', desc:'3〜5' },
+  { v:'many', label:'多め', desc:'10〜15' }
+];
+
+const SNS_DEFAULTS = {
+  x:     { length:'short',  photos:4, hashtags:'few',  firstHighlight:false, gridLayout:false, storeInfo:false, memo:'要点を簡潔に。会話のきっかけになる一言を。' },
+  insta: { length:'medium', photos:10, hashtags:'many', firstHighlight:true, gridLayout:false, storeInfo:true, memo:'1枚目に最もインパクトのある写真。カルーセルで詳細を見せる。' },
+  note:  { length:'long',   photos:4, hashtags:'few',  firstHighlight:false, gridLayout:false, storeInfo:true, memo:'読み物として丁寧に。横長アイキャッチ1枚を冒頭に。' },
+  ameba: { length:'medium', photos:6, hashtags:'few',  firstHighlight:false, gridLayout:false, storeInfo:true, memo:'読者への語りかけ・問いかけで親しみを出す。' },
+  hello: { length:'short',  photos:9, hashtags:'few',  firstHighlight:false, gridLayout:true,  storeInfo:false, memo:'9枚は3x3グリッドで。左上にメイン、右下にまとめ的な1枚。簡単な英語フレーズを添える。' }
+};
+
+const QUESTIONS = [
+  { q:'この写真はどんな場所・シーンですか？', qr:['旅行先の風景','グルメ・食事','カフェ・コーヒー','ガジェット・モノ','日常のひとコマ'], key:'scene' },
+  { q:'「あなたならでは」のこだわりポイントは？', qr:['穴場を見つけた','こだわりの一枚','初体験だった','長年のお気に入り','偶然の出会い'], key:'unique' },
+  { q:'読んだ人にどんな気持ちになってほしい？', qr:['行ってみたいと思わせたい','ほっこりさせたい','共感してほしい','参考にしてほしい','ワクワクさせたい'], key:'emotion' },
+  { q:'場所名・商品名など具体的な情報があれば（なければスキップ）', qr:['スキップ'], key:'detail' }
+];
+
+let state = { photos:[], dataURLs:[], answers:{}, currentQ:0, analysisResult:'', generated:{}, activePlatform:'x', editMode:{}, lastError:'', improving:{}, memo:'', store:'' };
+
+function load(k, def) { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch { return def; } }
+function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+
+let profile = load('profile', {});
+let history = load('history', []);
+let settings = load('settings', { enabledPlatforms:['x','insta','note','ameba','hello'], apiKey:'' });
+let snsConfig = load('snsConfig', JSON.parse(JSON.stringify(SNS_DEFAULTS)));
+PLATFORMS.forEach(p => {
+  if(!snsConfig[p.id]) snsConfig[p.id] = JSON.parse(JSON.stringify(SNS_DEFAULTS[p.id]));
+  else { const d = SNS_DEFAULTS[p.id]; Object.keys(d).forEach(k => { if(snsConfig[p.id][k] === undefined) snsConfig[p.id][k] = d[k]; }); }
+});
+
+function getApiKey() { return settings.apiKey || ''; }
+
+function init() {
+  loadProfileUI();
+  renderSnsToggles();
+  renderSnsAccordion();
+  renderHistory();
+  document.getElementById('apiKeyInput').value = settings.apiKey || '';
+  if (!getApiKey()) document.getElementById('api-warning').style.display = 'block';
+
+  document.getElementById('fileInput').addEventListener('change', e => { handleFiles(e.target.files); e.target.value=''; });
+
+  const zone = document.getElementById('uploadZone');
+  ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); zone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); if(ev==='dragleave' && zone.contains(e.relatedTarget)) return; zone.classList.remove('dragover'); }));
+  zone.addEventListener('drop', e => { if(e.dataTransfer?.files?.length) handleFiles(e.dataTransfer.files); });
+
+  const ci = document.getElementById('chatInput');
+  ci.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendUserMsg(); } });
+
+  ['must','ng','fixed'].forEach(t => {
+    document.getElementById(t+'-input').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); addTag(t); } });
+  });
+}
+
+function switchPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id === 'history') renderHistory();
+}
+
+function showApiSetting() { switchPage('settings', document.querySelectorAll('.nav-tab')[4]); document.getElementById('apiKeyInput').focus(); }
+
+function saveApiKey() {
+  settings.apiKey = document.getElementById('apiKeyInput').value.trim();
+  save('settings', settings);
+  document.getElementById('api-warning').style.display = settings.apiKey ? 'none' : 'block';
+  toast('APIキーを保存しました');
+}
+
+function handleFiles(files) {
+  const rem = 10 - state.photos.length;
+  Array.from(files).slice(0, rem).forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    const r = new FileReader();
+    r.onload = ev => { state.dataURLs.push(ev.target.result); state.photos.push(f); renderPhotos(); };
+    r.readAsDataURL(f);
+  });
+}
+
+function renderPhotos() {
+  const g = document.getElementById('photoGrid');
+  const c = document.getElementById('photoCount');
+  const b = document.getElementById('startBtn');
+  g.innerHTML = state.dataURLs.map((u,i) => `<div class="photo-thumb"><img src="${u}"><span class="order-badge">${i+1}</span><button class="rm" onclick="removePhoto(${i})">✕</button></div>`).join('');
+  if(state.photos.length) { c.style.display='block'; c.textContent = `${state.photos.length}枚選択済み（左上の番号が並び順）`; b.style.display='flex'; }
+  else { c.style.display='none'; b.style.display='none'; }
+}
+
+function removePhoto(i) { state.photos.splice(i,1); state.dataURLs.splice(i,1); renderPhotos(); }
+
+async function startFlow() {
+  if (!getApiKey()) { toast('先にAPIキーを設定してください'); showApiSetting(); return; }
+  state.memo = (document.getElementById('memoInput').value || '').trim();
+  state.store = (document.getElementById('storeInput').value || '').trim();
+  show('step-analyze');
+  document.querySelector('#step-analyze .spinner-sub').textContent = 'シーン・雰囲気・看板やメニューの文字を認識しています';
+  const msgs = ['写真を分析中...','文字情報を読み取り中...','メモと照らし合わせ中...'];
+  let mi = 0;
+  const iv = setInterval(() => { document.getElementById('analyzeMsg').textContent = msgs[mi++%msgs.length]; }, 900);
+
+  state.answers = {}; state.currentQ = 0;
+
+  try {
+    const imgContent = state.dataURLs.slice(0,4).map(url => {
+      const [hdr, data] = url.split(',');
+      const mime = hdr.match(/:(.*?);/)[1];
+      return { type:'image', source:{ type:'base64', media_type:mime, data } };
+    });
+    const memoLine = state.memo ? `\n\nユーザーの現地メモ:\n${state.memo}` : '';
+    const analysisPrompt = `これらの写真を分析してください。写真内に文字（看板・店名・メニュー・値段など）があれば読み取って含めてください。${memoLine}
+
+以下の形式で日本語で簡潔に出力（説明や前置きなし）:
+シーン: ○○。雰囲気: ○○。被写体: ○○。読み取れた文字: ○○（なければ「なし」）。`;
+    const res = await callAPI([{ role:'user', content:[...imgContent, { type:'text', text: analysisPrompt }] }]);
+    state.analysisResult = res || '写真を受け取りました';
+  } catch(e) { state.analysisResult = '写真を受け取りました'; }
+
+  // メモがあれば、4つの質問の答えを自動推定して埋める
+  if(state.memo) {
+    try {
+      const fillPrompt = `次の「写真分析」と「現地メモ」から、4項目を推定してJSONのみで出力してください。メモや分析から読み取れない項目は空文字""にすること。推測で埋めすぎないこと。
+
+写真分析: ${state.analysisResult}
+現地メモ: ${state.memo}
+
+出力形式（JSONのみ、前置き・コードブロック記号なし）:
+{ "scene":"どんな場所・シーンか", "unique":"その人ならではのこだわり・特別な点", "emotion":"読者に持ってほしい気持ち（メモから読み取れなければ空）", "detail":"店名・場所・商品名など具体情報" }`;
+      const raw = await callAPI([{ role:'user', content: fillPrompt }]);
+      const filled = parseJsonLoose(raw);
+      ['scene','unique','emotion','detail'].forEach(k => {
+        if(filled[k] && String(filled[k]).trim()) state.answers[k] = String(filled[k]).trim();
+      });
+    } catch(e) { /* 失敗時は通常の質問フローへ */ }
+  }
+
+  clearInterval(iv);
+  show('step-chat');
+  document.getElementById('chatInput').disabled = false;
+  initChat();
+}
+
+function nextUnansweredIndex(from) {
+  for(let i = from; i < QUESTIONS.length; i++) {
+    if(!state.answers[QUESTIONS[i].key]) return i;
+  }
+  return QUESTIONS.length;
+}
+
+function initChat() {
+  document.getElementById('progressDots').innerHTML = QUESTIONS.map((_,i) => `<div class="pdot" id="pd-${i}"></div>`).join('');
+  document.getElementById('chatArea').innerHTML = '';
+  document.getElementById('confirmBox').style.display = 'none';
+  document.getElementById('chatInputRow').style.display = 'flex';
+  document.getElementById('chatInput').disabled = false;
+
+  const prefilledCount = Object.keys(state.answers).length;
+  let intro = `写真の分析が完了しました！\n\n${state.analysisResult}`;
+  if(state.memo && prefilledCount) {
+    intro += `\n\nメモから ${prefilledCount} 項目を読み取って自動入力しました。`;
+  }
+
+  // メモで埋まっていない最初の質問へ
+  state.currentQ = nextUnansweredIndex(0);
+  updateDots();
+
+  if(state.currentQ >= QUESTIONS.length) {
+    // 全部メモで埋まった → 確認画面へ
+    addAI(intro + '\n\n必要な情報がすべて揃いました。内容を確認してください。');
+    showConfirm();
+  } else {
+    addAI(intro + `\n\nいくつか質問させてください。\n\n${QUESTIONS[state.currentQ].q}`);
+    renderQR(QUESTIONS[state.currentQ].qr);
+  }
+}
+
+function updateDots() {
+  QUESTIONS.forEach((_,i) => { const el = document.getElementById('pd-'+i); if(el) el.className = 'pdot' + (i < state.currentQ ? ' done' : i === state.currentQ ? ' active' : ''); });
+}
+
+function addAI(text) {
+  const a = document.getElementById('chatArea');
+  a.innerHTML += `<div class="msg ai"><div class="msg-avatar">✦</div><div class="msg-bubble">${esc(text)}</div></div>`;
+  a.scrollTop = a.scrollHeight;
+}
+function addUser(text) {
+  const a = document.getElementById('chatArea');
+  a.innerHTML += `<div class="msg user"><div class="msg-avatar">${esc((profile.name||'あ')[0])}</div><div class="msg-bubble">${esc(text)}</div></div>`;
+  a.scrollTop = a.scrollHeight;
+}
+function renderQR(items) {
+  document.getElementById('quickReplies').innerHTML = items.map((r,i) => `<button class="qr" data-i="${i}">${esc(r)}</button>`).join('');
+  document.querySelectorAll('#quickReplies .qr').forEach((btn,i) => btn.addEventListener('click', () => selectQR(btn, items[i])));
+}
+function selectQR(btn, val) {
+  document.querySelectorAll('.qr').forEach(b => b.style.opacity='0.4');
+  btn.style.opacity='1';
+  setTimeout(() => sendAnswer(val), 150);
+}
+function sendUserMsg() {
+  const inp = document.getElementById('chatInput');
+  const v = inp.value.trim(); if(!v) return; inp.value='';
+  sendAnswer(v);
+}
+function sendAnswer(val) {
+  addUser(val);
+  document.getElementById('quickReplies').innerHTML = '';
+  state.answers[QUESTIONS[state.currentQ].key] = val;
+  state.currentQ = nextUnansweredIndex(state.currentQ + 1);
+  updateDots();
+  if(state.currentQ < QUESTIONS.length) {
+    setTimeout(() => { addAI(QUESTIONS[state.currentQ].q); renderQR(QUESTIONS[state.currentQ].qr); }, 350);
+  } else {
+    setTimeout(showConfirm, 350);
+  }
+}
+
+function showConfirm() {
+  addAI('ありがとうございます！集まった情報です。各欄は直接編集できます（消す・書き足すOK）。整えたら生成してください。');
+  document.getElementById('chatInputRow').style.display = 'none';
+  document.getElementById('quickReplies').innerHTML = '';
+  const rows = QUESTIONS.map(q => {
+    const a = (state.answers[q.key] && state.answers[q.key] !== 'スキップ') ? state.answers[q.key] : '';
+    return `<div class="cs-field">
+      <label class="cs-flabel">${esc(shortLabel(q.key))}</label>
+      <textarea class="cs-input" id="cf-${q.key}" rows="2" oninput="syncConfirm('${q.key}', this.value)" placeholder="（空欄でもOK）">${escAttr(a)}</textarea>
+    </div>`;
+  }).join('');
+  const memoRow = `<div class="cs-field">
+      <label class="cs-flabel">現地メモ（事実情報・最優先で反映）</label>
+      <textarea class="cs-input" id="cf-memo" rows="3" oninput="syncConfirm('memo', this.value)" placeholder="店名・場所・感想など">${escAttr(state.memo||'')}</textarea>
+    </div>`;
+  const storeRow = `<div class="cs-field">
+      <label class="cs-flabel">店舗情報（任意・空欄OK）</label>
+      <textarea class="cs-input" id="cf-store" rows="3" oninput="syncConfirm('store', this.value)" placeholder="店名・住所・営業時間など">${escAttr(state.store||'')}</textarea>
+    </div>`;
+  document.getElementById('confirmSummary').innerHTML = `<div class="cs-title">内容を確認・編集</div>${rows}${memoRow}${storeRow}`;
+  document.getElementById('confirmBox').style.display = 'block';
+  document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+}
+
+function syncConfirm(key, value) {
+  const v = (value||'').trim();
+  if(key === 'memo') { state.memo = v; return; }
+  if(key === 'store') { state.store = v; return; }
+  if(v) state.answers[key] = v;
+  else delete state.answers[key];
+}
+
+function shortLabel(key) {
+  return { scene:'シーン', unique:'こだわり', emotion:'伝えたい想い', detail:'補足情報' }[key] || key;
+}
+
+function confirmGenerate() {
+  // 念のため最新の入力値を取り込む
+  QUESTIONS.forEach(q => { const el = document.getElementById('cf-'+q.key); if(el) syncConfirm(q.key, el.value); });
+  const memoEl = document.getElementById('cf-memo'); if(memoEl) state.memo = (memoEl.value||'').trim();
+  const storeEl = document.getElementById('cf-store'); if(storeEl) state.store = (storeEl.value||'').trim();
+  document.getElementById('confirmBox').style.display = 'none';
+  addAI('各SNS用の投稿を生成中です...');
+  generatePosts();
+}
+
+function platformInstruction(pid) {
+  const lenMap = { short:'短文（140字以内）', medium:'中文（300字前後）', long:'長文（800字以上）' };
+  const tagMap = { none:'ハッシュタグなし', few:'3〜5個', many:'10〜15個' };
+  const c = snsConfig[pid];
+  let extra = [];
+  if(c.firstHighlight) extra.push('1枚目に最もインパクトのある写真を配置');
+  if(c.gridLayout) extra.push(`写真${c.photos}枚をグリッドで美しく組む前提でレイアウトアドバイスを出す`);
+  if(c.storeInfo && (state.store||'').trim()) extra.push('本文の最後に「店舗情報」欄を設け、ユーザー記入の店舗情報をそのまま掲載し、その直後に必ず「※最新情報は必ずご自身でご確認ください」という注記を入れる');
+  return `- 文章量: ${lenMap[c.length]}\n- 写真枚数: ${c.photos}枚\n- ハッシュタグ: ${tagMap[c.hashtags]}\n- 個別ルール: ${c.memo || 'なし'}${extra.length ? '\n- 特記: ' + extra.join(' / ') : ''}`;
+}
+
+function platformJsonSpec(pid) {
+  const brand = ', "brandScore":1〜5の整数, "brandReason":"その点数にした理由を1〜2文（このSNSの空気への適合・完成度・ブランド一貫性・マイナスイメージのリスクの観点）", "brandTips":"ブランディングを高める具体的な改善ヒント1〜2文"';
+  const specs = {
+    x:'{ "text":"本文", "hashtags":"#タグ", "photoTips":"写真選びのヒント1文", "layout":"レイアウトアドバイス1文"'+brand+' }',
+    insta:'{ "text":"キャプション", "hashtags":"#タグ", "photoTips":"写真・並び順のヒント1文", "layout":"グリッド/カルーセルアドバイス1文"'+brand+' }',
+    note:'{ "title":"記事タイトル", "text":"本文", "hashtags":"#タグ", "photoTips":"アイキャッチのヒント1文", "layout":"記事構成アドバイス1文"'+brand+' }',
+    ameba:'{ "title":"ブログタイトル", "text":"本文", "hashtags":"#タグ", "photoTips":"写真配置のヒント1文", "layout":"レイアウトアドバイス1文"'+brand+' }',
+    hello:'{ "text":"日本語＋英語フレーズを含む本文", "hashtags":"#タグ", "photoTips":"写真選びのヒント1文", "layout":"グリッド配置アドバイス1文"'+brand+' }'
+  };
+  return specs[pid];
+}
+
+function parseJsonLoose(raw) {
+  let clean = raw.replace(/```json/gi,'').replace(/```/g,'').trim();
+  const s = clean.indexOf('{');
+  if(s >= 0) clean = clean.slice(s);
+  const e = clean.lastIndexOf('}');
+  const candidate = e >= 0 ? clean.slice(0, e+1) : clean;
+  try { return JSON.parse(candidate); } catch(_) {}
+  try {
+    let t = candidate.replace(/,\s*$/, '');
+    const quotes = (t.match(/(?<!\\)"/g)||[]).length;
+    if(quotes % 2 === 1) t += '"';
+    const open = (t.match(/{/g)||[]).length, close = (t.match(/}/g)||[]).length;
+    t += '}'.repeat(Math.max(0, open - close));
+    return JSON.parse(t);
+  } catch(_) {}
+  const obj = {};
+  const re = /"(\w+)"\s*:\s*("(?:[^"\\]|\\.)*"|\d+)/g;
+  let m;
+  while((m = re.exec(clean)) !== null) {
+    let v = m[2];
+    if(v[0] === '"') { try { v = JSON.parse(v); } catch { v = v.slice(1,-1); } }
+    else v = Number(v);
+    obj[m[1]] = v;
+  }
+  if(Object.keys(obj).length) return obj;
+  throw new Error('JSON parse failed');
+}
+
+function getStyleExamples(pid, limit) {
+  limit = limit || 3;
+  // 同じSNSの投稿で、編集後テキスト（最終形）を取り出す
+  const entries = history
+    .filter(h => h.generated && h.generated[pid] && (h.generated[pid].text || '').trim())
+    .map(h => ({ fav: !!h.favorite, id: h.id, text: h.generated[pid].text.trim() }));
+  // お気に入り優先 → 新しい順
+  const favs = entries.filter(e => e.fav).sort((a,b)=>b.id-a.id);
+  const rest = entries.filter(e => !e.fav).sort((a,b)=>b.id-a.id);
+  const picked = [...favs, ...rest].slice(0, limit).map(e => e.text);
+  return picked;
+}
+
+async function generatePosts() {
+  const pf = profile;
+  const toneMap = { casual:'カジュアル・親しみやすい', warm:'温かみがあって丁寧', cool:'クール・シンプル', info:'情報量多め・詳しく', humor:'ユーモアあり・楽しく' };
+  const emojiMap = { moderate:'適度に使う', lots:'たくさん使う', few:'あまり使わない', none:'使わない' };
+  const profileBlock = `【発信者プロフィール】
+名前: ${pf.name||'未設定'}
+コンセプト: ${pf.concept||'未設定'}
+自己紹介: ${pf.bio||'未設定'}
+文体・口癖: ${pf.style||'未設定'}
+トーン: ${toneMap[pf.tone]||'カジュアル'}
+絵文字: ${emojiMap[pf.emoji]||'適度に使う'}
+必須キーワード: ${(pf.mustKeywords||[]).join('、')||'なし'}
+NGキーワード: ${(pf.ngKeywords||[]).join('、')||'なし'}
+固定ハッシュタグ（必ず追加）: ${(pf.fixedTags||[]).join(' ')||'なし'}
+
+【写真分析】${state.analysisResult}
+【シーン】${state.answers.scene||''}
+【こだわり】${state.answers.unique||''}
+【伝えたい感情】${state.answers.emotion||''}
+【詳細情報】${state.answers.detail||'なし'}
+【現地メモ（本人記入・最重要の事実情報）】${state.memo || 'なし'}
+【店舗情報（本人記入）】${state.store || 'なし'}
+
+現地メモには店名・場所・実際の感想など本人しか知らない事実が含まれます。これを最優先で本文に反映し、具体的で説得力のある投稿にしてください。ただしメモをそのままコピーせず、各SNSに合った文章に書き直すこと。店舗情報は「店舗情報を載せる」がオンのSNSでのみ、本文末尾にそのまま掲載してください。`;
+
+  const enabled = settings.enabledPlatforms || PLATFORMS.map(p=>p.id);
+  const targets = PLATFORMS.filter(p => enabled.includes(p.id));
+
+  // 進捗表示のためにスピナー画面を再利用
+  show('step-analyze');
+  document.querySelector('#step-analyze .spinner-sub').textContent = '各SNSの文章を順番に生成しています';
+
+  state.generated = {};
+  const failed = [];
+  for(let i = 0; i < targets.length; i++) {
+    const p = targets[i];
+    document.getElementById('analyzeMsg').textContent = `${p.name} を生成中... (${i+1}/${targets.length})`;
+    const examples = getStyleExamples(p.id);
+    const styleBlock = examples.length ? `
+
+【あなたの過去の${p.name}投稿（文体のお手本・最優先で真似る）】
+${examples.map((t,idx)=>`例${idx+1}:\n${t}`).join('\n\n')}
+
+これらは実際にあなたが投稿した文章です。語彙・語尾・リズム・改行の癖を強く反映してください。ただし内容は今回の写真・テーマに合わせて新しく書くこと。` : '';
+    const prompt = `あなたはSNSマーケティングとパーソナルブランディングの専門家です。
+
+${profileBlock}
+
+【${p.name} の設定（厳守）】
+${platformInstruction(p.id)}${styleBlock}
+
+上記プロフィールの文体・口癖・トーンを忠実に反映し、文章量・ルールを厳守してください。NGキーワードは絶対に使わず、固定ハッシュタグは必ず含めること。
+
+最後に、生成した投稿を「${p.name}に投稿した場合のブランディング効果」の観点で正直に自己評価してください。brandScoreは甘くせず、このSNSの空気への適合・完成度・ブランドの一貫性・マイナスイメージや炎上のリスクを厳しめに見て1〜5で付けること（無難なだけの投稿は3、明確に強みがある場合のみ4〜5、リスクや違和感があれば1〜2）。brandReasonにはなぜその点数かを、brandTipsには具体的な改善案を書くこと。
+
+${p.name} の投稿をJSONのみで出力（前置き・説明・コードブロック記号なし）:
+${platformJsonSpec(p.id)}`;
+    try {
+      const raw = await callAPI([{ role:'user', content: prompt }]);
+      state.generated[p.id] = parseJsonLoose(raw);
+    } catch(err) {
+      const fb = makeFallback();
+      state.generated[p.id] = fb[p.id] || { text:'', hashtags:'', photoTips:'', layout:'' };
+      failed.push({ name: p.name, err: diagnoseError(err) });
+    }
+  }
+
+  state.lastError = failed.length ? {
+    hint: `${failed.map(f=>f.name).join('・')} の生成に失敗し、簡易版を表示しています。「やり直す」で再試行すると直ることがあります。`,
+    raw: failed.map(f=>`[${f.name}] ${f.err.raw}`).join('\n')
+  } : '';
+
+  show('step-results');
+  renderErrorBanner();
+  const sb = document.getElementById('saveBtn');
+  sb.textContent = '履歴に保存'; sb.disabled = false;
+  renderResults();
+}
+
+function diagnoseError(err) {
+  const msg = (err && err.message) ? err.message : String(err);
+  let hint = '';
+  if(/Failed to fetch|NetworkError|Load failed/i.test(msg)) {
+    hint = 'ブラウザから直接APIを呼べていません（CORS/ネットワーク制限）。これはキーの問題ではなく仕組みの問題です。対策が必要なので、このメッセージを開発担当（Claude）に伝えてください。';
+  } else if(/401|authentication|invalid x-api-key|invalid_api_key/i.test(msg)) {
+    hint = 'APIキーが無効です。設定画面のキーを確認するか、Anthropicコンソールで新しいキーを発行してください。';
+  } else if(/403|permission/i.test(msg)) {
+    hint = 'このキーには権限がありません。コンソールでキーの権限を確認してください。';
+  } else if(/429|rate|overloaded/i.test(msg)) {
+    hint = 'アクセスが混み合っているか、回数制限に達しました。少し待って再試行してください。';
+  } else if(/400|credit|billing|insufficient/i.test(msg)) {
+    hint = '利用枠（クレジット）が不足している可能性があります。コンソールの請求設定を確認してください。';
+  } else if(/JSON|Unexpected token|position/i.test(msg)) {
+    hint = 'AIの返答をうまく読み取れませんでした。もう一度「やり直す」で試すと直ることがあります。';
+  } else {
+    hint = '原因を特定するため、このメッセージを開発担当（Claude）に伝えてください。';
+  }
+  return { hint, raw: msg };
+}
+
+function renderErrorBanner() {
+  const area = document.getElementById('postsArea');
+  const host = document.getElementById('errorBanner');
+  if(host) host.remove();
+  if(!state.lastError) return;
+  const div = document.createElement('div');
+  div.id = 'errorBanner';
+  div.style.cssText = 'background:var(--danger-bg);color:var(--danger-text);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.7';
+  div.innerHTML = `<div style="font-weight:600;margin-bottom:6px">⚠ 生成に失敗しました（簡易版を表示中）</div>
+    <div style="margin-bottom:8px">${esc(state.lastError.hint)}</div>
+    <details><summary style="cursor:pointer;font-size:12px">技術的な詳細を表示</summary><div style="margin-top:6px;font-size:12px;word-break:break-all;opacity:0.85">${esc(state.lastError.raw)}</div></details>`;
+  area.parentNode.insertBefore(div, area);
+}
+
+async function callAPI(messages) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:3000, messages })
+  });
+  if(!res.ok) { const t = await res.text(); throw new Error('API '+res.status+': '+t); }
+  const data = await res.json();
+  return data.content?.map(c => c.type==='text' ? c.text : '').join('') || '';
+}
+
+function makeFallback() {
+  const s = state.answers.scene || 'この体験';
+  const u = state.answers.unique || 'こだわりの一枚';
+  const out = {};
+  const enabled = settings.enabledPlatforms || PLATFORMS.map(p=>p.id);
+  const base = {
+    x:{ text:`${s}に行ってきました。\n\n${u}。\n${state.answers.emotion||''}`, hashtags:'#旅行 #日常', photoTips:'明るくクリアな写真を', layout:'テキスト短め' },
+    insta:{ text:`✨ ${s}\n\n${u}。`, hashtags:'#旅行好き #日本', photoTips:'1枚目に映える写真を', layout:'1枚目ハイライト＋カルーセル' },
+    note:{ title:`${s}で見つけた「${u}」`, text:`最近、${s}に行ってきました。${u}。`, hashtags:'#旅行記', photoTips:'横長アイキャッチを', layout:'見出しで構成' },
+    ameba:{ title:`【${s}】レポート`, text:`こんにちは！${s}に行ってきました〜。`, hashtags:'#旅行', photoTips:'写真を複数配置', layout:'写真とテキスト交互' },
+    hello:{ text:`${s}に行ってきました！I visited a wonderful place!`, hashtags:'#travel', photoTips:'シンプルな写真を', layout:'3x3グリッド配置' }
+  };
+  PLATFORMS.forEach(p => { if(enabled.includes(p.id)) out[p.id] = base[p.id]; });
+  return out;
+}
+
+function renderResults() {
+  const enabled = settings.enabledPlatforms || PLATFORMS.map(p=>p.id);
+  const filtered = PLATFORMS.filter(p => enabled.includes(p.id) && state.generated[p.id]);
+  document.getElementById('platformTabs').innerHTML = filtered.map((p,i) => `<button class="ptab${i===0?' active':''}" data-id="${p.id}">${p.name}</button>`).join('');
+  document.querySelectorAll('#platformTabs .ptab').forEach(btn => btn.addEventListener('click', () => switchPTab(btn.dataset.id, btn)));
+  state.activePlatform = filtered[0]?.id || 'x';
+  renderPost(state.activePlatform);
+}
+
+function switchPTab(pid, btn) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  state.activePlatform = pid;
+  renderPost(pid);
+}
+
+function renderPost(pid) {
+  const pf = PLATFORMS.find(p => p.id === pid);
+  const post = state.generated[pid] || {};
+  const cfg = snsConfig[pid];
+  const area = document.getElementById('postsArea');
+  const isEditing = state.editMode[pid];
+  const nPhotos = Math.min(cfg.photos, state.dataURLs.length);
+
+  let photoBlock = '';
+  if(state.dataURLs.length) {
+    if(cfg.gridLayout && nPhotos > 1) {
+      const cols = nPhotos === 4 ? 2 : nPhotos === 6 ? 3 : nPhotos === 9 ? 3 : nPhotos === 3 ? 3 : 3;
+      const cells = state.dataURLs.slice(0, nPhotos).map(u => `<div class="gp-cell"><img src="${u}"></div>`).join('');
+      photoBlock = `<div style="font-size:12px;color:var(--text3);margin-bottom:6px">${nPhotos}枚グリッド配置プレビュー</div><div class="grid-preview" style="grid-template-columns:repeat(${cols},1fr)">${cells}</div>`;
+    } else {
+      const thumbs = state.dataURLs.slice(0, nPhotos).map((u,i) => `<div class="sel-photo${cfg.firstHighlight && i===0 ? ' highlight':''}"><img src="${u}"><span class="n">${i+1}</span></div>`).join('');
+      const hl = cfg.firstHighlight ? '（青枠＝1枚目ハイライト）' : '';
+      photoBlock = `<div style="font-size:12px;color:var(--text3);margin-bottom:6px">使用写真 ${nPhotos}枚${hl}</div><div class="sel-photos">${thumbs}</div>`;
+    }
+  }
+
+  area.innerHTML = `
+    <div class="post-card">
+      <div class="post-card-hdr">
+        <span class="pbadge ${pf.badge}">${pf.name}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-xs" onclick="toggleEdit('${pid}')">${isEditing?'完了':'編集'}</button>
+          <button class="btn btn-xs" onclick="copyPost('${pid}')">コピー</button>
+          <button class="btn btn-xs btn-primary" onclick="copyAndOpen('${pid}')">${pid==='x'?'本文入りで開く':'コピーして開く'}</button>
+        </div>
+      </div>
+      ${isEditing
+        ? `<div class="post-edit-area">
+            ${post.title != null ? `<label class="edit-flabel">タイトル</label><input type="text" id="edit-title-${pid}" class="edit-title" value="${escAttr(post.title||'')}">` : ''}
+            <label class="edit-flabel">本文</label>
+            <textarea id="edit-text-${pid}">${escAttr(post.text||'')}</textarea>
+            <label class="edit-flabel">ハッシュタグ</label>
+            <input type="text" id="edit-tags-${pid}" class="edit-tags" value="${escAttr(post.hashtags||'')}">
+          </div>`
+        : `${post.title ? `<div style="font-size:15px;font-weight:500;margin-bottom:10px">${esc(post.title)}</div>` : ''}
+           <div class="post-body">${esc(post.text||'')}</div>
+           <div class="post-tags">${esc(post.hashtags||'')}</div>`}
+      ${photoBlock}
+      <div class="post-meta"><strong>📷 写真:</strong> ${esc(post.photoTips||'')}<br><strong>📐 レイアウト:</strong> ${esc(post.layout||'')}</div>
+      ${renderBrandBlock(pid, post)}
+    </div>`;
+}
+
+function renderBrandBlock(pid, post) {
+  if(post.brandScore == null && !post.brandReason) return '';
+  const score = Math.max(1, Math.min(5, Math.round(post.brandScore || 0)));
+  const stars = '★'.repeat(score) + '☆'.repeat(5 - score);
+  const scoreClass = score >= 4 ? 'bs-good' : score === 3 ? 'bs-mid' : 'bs-low';
+  const improving = state.improving && state.improving[pid];
+  return `
+    <div class="brand-block">
+      <div class="brand-hdr">
+        <span class="brand-label">ブランド評価</span>
+        <span class="brand-stars ${scoreClass}">${stars}<span class="brand-num">${score}/5</span></span>
+      </div>
+      ${post.brandReason ? `<div class="brand-reason">${esc(post.brandReason)}</div>` : ''}
+      ${post.brandTips ? `<div class="brand-tips"><strong>💡 改善のヒント:</strong> ${esc(post.brandTips)}</div>` : ''}
+      <button class="btn btn-xs btn-block" style="margin-top:8px" onclick="improvePost('${pid}')" ${improving?'disabled':''}>${improving?'改善版を生成中...':'✨ この評価をもとに改善版を生成'}</button>
+    </div>`;
+}
+
+function flushEdits(pid) {
+  if(!state.editMode[pid]) return;
+  const ta = document.getElementById('edit-text-'+pid); if(ta) state.generated[pid].text = ta.value;
+  const ti = document.getElementById('edit-title-'+pid); if(ti) state.generated[pid].title = ti.value;
+  const tg = document.getElementById('edit-tags-'+pid); if(tg) state.generated[pid].hashtags = tg.value;
+}
+
+async function improvePost(pid) {
+  flushEdits(pid);
+  if(!getApiKey()) { toast('APIキーを設定してください'); return; }
+  if(!state.improving) state.improving = {};
+  state.improving[pid] = true;
+  renderPost(pid);
+  const pf = PLATFORMS.find(p => p.id === pid);
+  const post = state.generated[pid] || {};
+  const prompt = `あなたはSNSマーケティングとパーソナルブランディングの専門家です。
+以下は${pf.name}向けに作成した投稿と、その自己評価です。
+
+【現在の投稿】
+${post.title ? 'タイトル: ' + post.title + '\n' : ''}本文: ${post.text || ''}
+ハッシュタグ: ${post.hashtags || ''}
+
+【評価】${post.brandScore}/5
+【評価理由】${post.brandReason || ''}
+【改善すべき点】${post.brandTips || ''}
+
+この改善点を反映し、${pf.name}でのブランディング効果がより高まるように投稿を書き直してください。文体・トーンは保ちつつ、評価が上がる方向で改善すること。
+
+JSONのみ出力（前置き・コードブロック記号なし）:
+${platformJsonSpec(pid)}`;
+  try {
+    const raw = await callAPI([{ role:'user', content: prompt }]);
+    const improved = parseJsonLoose(raw);
+    state.generated[pid] = improved;
+    toast('改善版を生成しました');
+  } catch(err) {
+    toast('改善版の生成に失敗しました');
+  }
+  state.improving[pid] = false;
+  renderPost(pid);
+}
+
+function toggleEdit(pid) {
+  if(state.editMode[pid]) {
+    const ta = document.getElementById('edit-text-'+pid); if(ta) state.generated[pid].text = ta.value;
+    const ti = document.getElementById('edit-title-'+pid); if(ti) state.generated[pid].title = ti.value;
+    const tg = document.getElementById('edit-tags-'+pid); if(tg) state.generated[pid].hashtags = tg.value;
+  }
+  state.editMode[pid] = !state.editMode[pid];
+  renderPost(pid);
+}
+
+async function copyPost(pid) {
+  flushEdits(pid);
+  const post = state.generated[pid] || {};
+  const text = [post.title, post.text, post.hashtags].filter(Boolean).join('\n\n');
+  try { await navigator.clipboard.writeText(text); toast('コピーしました'); }
+  catch { toast('コピーできませんでした'); }
+}
+
+const SNS_URLS = {
+  x:     'https://twitter.com/intent/tweet',
+  insta: 'https://www.instagram.com/',
+  note:  'https://note.com/notes/new',
+  ameba: 'https://blog.ameba.jp/ucs/entry/srventryinsertinput.do',
+  hello: 'https://www.hellotalk.com/'
+};
+
+async function copyAndOpen(pid) {
+  flushEdits(pid);
+  const post = state.generated[pid] || {};
+  const text = [post.title, post.text, post.hashtags].filter(Boolean).join('\n\n');
+  let copied = false;
+  try { await navigator.clipboard.writeText(text); copied = true; } catch {}
+
+  if(pid === 'x') {
+    // Xだけは本文入りで投稿画面を開ける
+    const body = [post.text, post.hashtags].filter(Boolean).join('\n\n');
+    const url = SNS_URLS.x + '?text=' + encodeURIComponent(body);
+    window.open(url, '_blank');
+    toast('Xの投稿画面を開きました');
+    return;
+  }
+  const pf = PLATFORMS.find(p => p.id === pid);
+  window.open(SNS_URLS[pid] || '#', '_blank');
+  toast(copied ? `本文をコピーしました。${pf.name}に貼り付けてください` : `${pf.name}を開きました`);
+}
+
+function saveToHistory() {
+  // 編集中の内容を確定させてから保存
+  Object.keys(state.editMode).forEach(pid => { if(state.editMode[pid]) flushEdits(pid); });
+  history.unshift({
+    id: Date.now(),
+    date: new Date().toLocaleDateString('ja-JP', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }),
+    scene: state.answers.scene || '投稿',
+    thumb: state.dataURLs[0] || '',
+    platforms: Object.keys(state.generated),
+    favorite: false,
+    generated: state.generated, answers: state.answers, analysisResult: state.analysisResult, memo: state.memo, store: state.store
+  });
+  if(history.length > 30) history.pop();
+  save('history', history);
+  const sb = document.getElementById('saveBtn');
+  sb.textContent = '✓ 保存済み'; sb.disabled = true;
+  toast('履歴に保存しました');
+}
+
+function toggleFavorite(id, ev) {
+  if(ev) ev.stopPropagation();
+  const h = history.find(x => x.id === id); if(!h) return;
+  h.favorite = !h.favorite;
+  save('history', history);
+  renderHistory();
+  toast(h.favorite ? '★ お気に入りに追加（文体のお手本に優先されます）' : 'お気に入りを解除しました');
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if(!history.length) { el.innerHTML = '<div class="empty-state">まだ履歴がありません。<br>写真をアップして投稿を作成しましょう。</div>'; return; }
+  const favCount = history.filter(h => h.favorite).length;
+  const note = `<div style="padding:12px 16px 0;font-size:13px;color:var(--text3)">${history.length}件の投稿${favCount?` ・ ★${favCount}件をお手本に学習中`:''}<br><span style="font-size:11px">★を付けた投稿は次回の文体のお手本に優先されます</span></div>`;
+  el.innerHTML = note +
+    history.map(h => `
+      <div class="history-item" onclick="loadHistory(${h.id})">
+        <div class="history-thumb">${h.thumb?`<img src="${h.thumb}">`:''}</div>
+        <div class="history-info">
+          <div class="history-scene">${esc(h.scene)}</div>
+          <div class="history-date">${esc(h.date)}</div>
+          <div class="history-platforms">${(h.platforms||[]).map(p => { const pf = PLATFORMS.find(x=>x.id===p); return pf?`<span class="hpill pbadge ${pf.badge}">${pf.name}</span>`:''; }).join('')}</div>
+        </div>
+        <button class="fav-btn ${h.favorite?'on':''}" onclick="toggleFavorite(${h.id}, event)" title="お気に入り（文体のお手本）">${h.favorite?'★':'☆'}</button>
+      </div>`).join('<div style="height:0.5px;background:var(--border);margin:0 16px"></div>');
+}
+
+function loadHistory(id) {
+  const h = history.find(x => x.id === id); if(!h) return;
+  state.generated = h.generated; state.answers = h.answers; state.analysisResult = h.analysisResult; state.memo = h.memo || ''; state.store = h.store || '';
+  state.dataURLs = h.thumb ? [h.thumb] : []; state.editMode = {};
+  switchPage('home', document.querySelectorAll('.nav-tab')[0]);
+  show('step-results');
+  const sb = document.getElementById('saveBtn'); sb.textContent='履歴に保存'; sb.disabled=false;
+  renderResults();
+}
+
+function loadProfileUI() {
+  document.getElementById('pf-name').value = profile.name||'';
+  document.getElementById('pf-concept').value = profile.concept||'';
+  document.getElementById('pf-bio').value = profile.bio||'';
+  document.getElementById('pf-style').value = profile.style||'';
+  document.getElementById('pf-tone').value = profile.tone||'casual';
+  document.getElementById('pf-emoji').value = profile.emoji||'moderate';
+  renderTagsUI('must', profile.mustKeywords||[]);
+  renderTagsUI('ng', profile.ngKeywords||[]);
+  renderTagsUI('fixed', profile.fixedTags||[]);
+}
+
+function saveProfile() {
+  profile = {
+    name: val('pf-name'), concept: val('pf-concept'), bio: val('pf-bio'), style: val('pf-style'),
+    tone: val('pf-tone'), emoji: val('pf-emoji'),
+    mustKeywords: profile.mustKeywords||[], ngKeywords: profile.ngKeywords||[], fixedTags: profile.fixedTags||[]
+  };
+  save('profile', profile);
+  toast('プロフィールを保存しました');
+}
+function val(id){ return document.getElementById(id).value.trim(); }
+
+function tagKey(type){ return type==='must'?'mustKeywords':type==='ng'?'ngKeywords':'fixedTags'; }
+function addTag(type) {
+  const inp = document.getElementById(type+'-input');
+  const v = inp.value.trim(); if(!v) return;
+  const key = tagKey(type);
+  if(!profile[key]) profile[key] = [];
+  if(!profile[key].includes(v)) profile[key].push(v);
+  inp.value='';
+  renderTagsUI(type, profile[key]);
+}
+function removeTag(type, val) {
+  const key = tagKey(type);
+  profile[key] = (profile[key]||[]).filter(t => t !== val);
+  renderTagsUI(type, profile[key]);
+}
+function renderTagsUI(type, tags) {
+  const el = document.getElementById(type+'-tags');
+  if(!el) return;
+  el.innerHTML = tags.map(t => `<span class="tag-chip">${esc(t)}<button onclick="removeTag('${type}','${escAttr(t)}')">×</button></span>`).join('');
+}
+
+function renderSnsAccordion() {
+  const enabled = settings.enabledPlatforms || PLATFORMS.map(p=>p.id);
+  document.getElementById('snsAccordion').innerHTML = PLATFORMS.map(p => {
+    const c = snsConfig[p.id];
+    const off = enabled.includes(p.id) ? '' : ' <span style="font-size:11px;color:var(--text3)">(無効)</span>';
+    return `
+    <div class="accordion-item" id="acc-${p.id}">
+      <div class="accordion-hdr" onclick="toggleAcc('${p.id}')"><span><span class="pbadge ${p.badge}">${p.name}</span>${off}</span><span class="chev">›</span></div>
+      <div class="accordion-content">
+        <div class="form-group"><label>文章量</label><div class="seg" id="seg-len-${p.id}">${LENGTH_OPTS.map(o=>`<button data-v="${o.v}" class="${c.length===o.v?'active':''}" onclick="setCfg('${p.id}','length','${o.v}',this)">${o.label}<br><span style="font-size:10px;opacity:0.7">${o.desc}</span></button>`).join('')}</div></div>
+        <div class="form-group"><label>写真枚数</label><div class="chip-select" id="chip-ph-${p.id}">${PHOTO_OPTS.map(n=>`<button class="${c.photos===n?'active':''}" onclick="setCfg('${p.id}','photos',${n},this)">${n}枚</button>`).join('')}</div></div>
+        <div class="form-group"><label>ハッシュタグ</label><div class="seg" id="seg-tag-${p.id}">${HASHTAG_OPTS.map(o=>`<button data-v="${o.v}" class="${c.hashtags===o.v?'active':''}" onclick="setCfg('${p.id}','hashtags','${o.v}',this)">${o.label}${o.desc?'<br><span style="font-size:10px;opacity:0.7">'+o.desc+'</span>':''}</button>`).join('')}</div></div>
+        <div class="switch-row"><div><div class="switch-label">1枚目をハイライト</div><div class="form-hint" style="margin:0">最も映える写真を先頭に</div></div><label class="toggle"><input type="checkbox" ${c.firstHighlight?'checked':''} onchange="setCfg('${p.id}','firstHighlight',this.checked)"><span class="toggle-slider"></span></label></div>
+        <div class="switch-row"><div><div class="switch-label">グリッド組み写真</div><div class="form-hint" style="margin:0">3/4/6/9枚を綺麗に組む</div></div><label class="toggle"><input type="checkbox" ${c.gridLayout?'checked':''} onchange="setCfg('${p.id}','gridLayout',this.checked)"><span class="toggle-slider"></span></label></div>
+        <div class="switch-row"><div><div class="switch-label">店舗情報を載せる</div><div class="form-hint" style="margin:0">住所・営業時間など＋「※最新情報はご確認を」注記を自動追加</div></div><label class="toggle"><input type="checkbox" ${c.storeInfo?'checked':''} onchange="setCfg('${p.id}','storeInfo',this.checked)"><span class="toggle-slider"></span></label></div>
+        <div class="form-group" style="margin-bottom:4px"><label>このSNSの役割・自由メモ</label><textarea rows="2" onchange="setCfg('${p.id}','memo',this.value)" placeholder="例: 読者への問いかけで締める">${escAttr(c.memo||'')}</textarea></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAcc(pid) { document.getElementById('acc-'+pid).classList.toggle('open'); }
+
+function setCfg(pid, key, value, btn) {
+  snsConfig[pid][key] = value;
+  if(btn) {
+    const parent = btn.parentElement;
+    parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function saveSnsConfig() { save('snsConfig', snsConfig); toast('SNS設定を保存しました'); }
+
+function renderSnsToggles() {
+  const enabled = settings.enabledPlatforms || PLATFORMS.map(p=>p.id);
+  document.getElementById('sns-toggles').innerHTML = PLATFORMS.map(p => `
+    <div class="switch-row"><div class="switch-label">${p.name}</div>
+    <label class="toggle"><input type="checkbox" ${enabled.includes(p.id)?'checked':''} onchange="togglePlatform('${p.id}',this.checked)"><span class="toggle-slider"></span></label></div>`).join('');
+}
+function togglePlatform(id, on) {
+  if(!settings.enabledPlatforms) settings.enabledPlatforms = PLATFORMS.map(p=>p.id);
+  if(on) { if(!settings.enabledPlatforms.includes(id)) settings.enabledPlatforms.push(id); }
+  else settings.enabledPlatforms = settings.enabledPlatforms.filter(p => p !== id);
+  save('settings', settings);
+  renderSnsAccordion();
+}
+
+function clearHistory() { if(!confirm('履歴をすべて削除しますか？')) return; history=[]; save('history',history); renderHistory(); toast('履歴を削除しました'); }
+function clearAll() { if(!confirm('全データを初期化しますか？')) return; localStorage.clear(); location.reload(); }
+
+function show(id) {
+  ['step-upload','step-analyze','step-chat','step-results'].forEach(s => { const el=document.getElementById(s); if(el) el.style.display = s===id?'block':'none'; });
+}
+function resetFlow() {
+  state = { photos:[], dataURLs:[], answers:{}, currentQ:0, analysisResult:'', generated:{}, activePlatform:'x', editMode:{}, lastError:'', improving:{}, memo:'', store:'' };
+  document.getElementById('fileInput').value='';
+  document.getElementById('photoGrid').innerHTML='';
+  const memoEl = document.getElementById('memoInput'); if(memoEl) memoEl.value='';
+  const storeEl = document.getElementById('storeInput'); if(storeEl) storeEl.value='';
+  document.getElementById('photoCount').style.display='none';
+  document.getElementById('startBtn').style.display='none';
+  document.getElementById('chatInput').disabled=false;
+  show('step-upload');
+}
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+
+// --- パスワードロック ---
+const APP_PASSWORD = '999999';
+let appInited = false;
+function tryUnlock() {
+  const inp = document.getElementById('lockInput');
+  const err = document.getElementById('lockError');
+  if(inp.value === APP_PASSWORD) {
+    sessionStorage.setItem('bps_unlocked', '1');
+    document.getElementById('lockScreen').style.display = 'none';
+    if(!appInited) { init(); appInited = true; }
+  } else {
+    err.textContent = 'パスワードが違います';
+    inp.value = '';
+    inp.focus();
+  }
+}
+function setupLock() {
+  const lock = document.getElementById('lockScreen');
+  const inp = document.getElementById('lockInput');
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+  if(sessionStorage.getItem('bps_unlocked') === '1') {
+    lock.style.display = 'none';
+    init(); appInited = true;
+  } else {
+    lock.style.display = 'flex';
+    setTimeout(() => inp.focus(), 100);
+  }
+}
+setupLock();
+</script>
+</body>
+</html>
